@@ -1,0 +1,27 @@
+idea:
+  title: LLM One-pass Orderings
+  domain: nlp
+  hypothesis: 'The ability of large language models (LLMs) to correctly order lists
+    of items by various properties (such as alphabetic order, weight, or date of birth)
+    varies depending on the property, with some orderings consistently succeeding,
+    some failing, and some failing abysmally. Analyzing these patterns can reveal
+    which features LLMs have easier or harder access to.
+
+    '
+  background:
+    description: 'If you give an LLM a list of items, and then ask it to order by
+      some property (alphabetic ordering, weight, date or birth, etc.) there will
+      be certain orderings that succeed, certain ones that fail, and certain ones
+      that fail abysmally. Can we use this to figure out what features LLMs have easier
+      access to?
+
+      '
+  metadata:
+    author: Ari Holtzman
+    source: IdeaHub
+    source_url: https://hypogenic.ai/ideahub/idea/SBpCYqmYPvNkXPFoJdrK
+    idea_id: llm_one_pass_orderings_20260322_035915_72158db0
+    created_at: '2026-03-22T03:59:15.832386'
+    status: submitted
+    github_repo_name: llm-one-pass-ordering-claude
+    github_repo_url: https://github.com/Hypogenic-AI/llm-one-pass-ordering-claude
