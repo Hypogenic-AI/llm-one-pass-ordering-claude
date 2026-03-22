@@ -1,0 +1,69 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What Makes a Property Easy to Order?}
+
+Our results suggest that two factors determine ordering difficulty: (1) whether the items form a \emph{conventional sequence} that appears as an ordered list in training data, and (2) whether the ordering requires \emph{precise numeric discrimination} between items with similar values.
+
+Factor (1) explains why element atomic numbers ($\tau = 1.0$) are easier than element atomic weights ($\tau = 0.970$): the periodic table is a fixed, universally-taught sequence, while atomic weights are independent numeric values that must be compared.
+Factor (2) explains why country population ($\tau = 0.941$) is easier than country area ($\tau = 0.822$): population rankings are frequently discussed in media and education, while area comparisons between similarly-sized countries (\eg Australia vs.\ Brazil) require precise recall.
+
+This framing aligns with \citet{zhao2025access}, who observe that pointwise ordering succeeds when facts reside in parametric memory.
+We refine this observation: even when facts \emph{are} in parametric memory, the \emph{form} of storage matters.
+Sequential knowledge (A comes before B in a known list) supports ordering more reliably than independent numeric knowledge (A has value $x$, B has value $y$, is $x > y$?).
+
+\subsection{Error Patterns}
+
+The most common errors are \emph{adjacent swaps} rather than gross misorderings.
+For building height, \gptlarge swaps Big Ben (96\,m) and the Statue of Liberty (93\,m)---items separated by only 3 meters.
+For country area, Australia and Brazil (similar sizes) are frequently transposed.
+This pattern is consistent with LLMs storing \emph{approximate} magnitude representations that support coarse ordering but lose precision when values are close.
+
+\gptsmall exhibits a qualitatively different failure mode on its worst tasks.
+River length ($\tau = 0.274$) is near random ordering, suggesting that the smaller model has essentially no usable knowledge of relative river lengths.
+This indicates that smaller models do not simply have noisier versions of the same knowledge---for some properties, the knowledge is absent entirely.
+
+\subsection{Implications}
+
+\para{For LLM-based data pipelines.}
+Our hierarchy provides actionable guidance: trust LLMs for ordering by well-known categorical or sequential properties (alphabetical, chronological, famous rankings), but use external databases or APIs for ordering by precise numeric facts (geographic measurements, specific dimensions).
+
+\para{For understanding LLM knowledge.}
+Ordering tasks provide a clean, scalable probe of relational knowledge.
+Unlike cloze-style probes that test whether an LLM can recall a single fact, ordering tests whether the model can \emph{compare} facts---a stronger requirement that reveals the precision of stored knowledge.
+The gap between sequence-based and numeric ordering illuminates the boundary between ``knowing'' (recognizing a fact in context) and ``precisely recalling'' (producing a specific value that can be compared).
+
+\para{For evaluation design.}
+The \benchname hierarchy can guide benchmark construction.
+Tasks that test sequence recall are easy and should not be used alone to assess factual knowledge.
+Tasks that test precise numeric ordering are more discriminating and better suited for evaluating knowledge depth.
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+Our study has several limitations that temper the strength of our conclusions.
+
+\para{Small task set.}
+We test 22 tasks with 6--10 items each.
+Larger lists would likely show more degradation, and more tasks per category would increase statistical power.
+With only 2--7 tasks per category, between-category statistical tests lack power (Kruskal--Wallis $p = 0.10$ for \gptlarge).
+
+\para{Two models.}
+We evaluate only \gptlarge and \gptsmall.
+Testing additional model families (Claude, Gemini, open-weight models like Llama) would strengthen generalizability claims.
+
+\para{Ground-truth ambiguity.}
+Some properties have measurement-dependent ground truths (\eg ``typical'' animal lifespan varies by source).
+We use standard reference values, but alternative sources might yield different orderings.
+
+\para{English only.}
+All tasks and prompts are in English.
+Cross-lingual ordering might reveal different accessibility patterns, especially for culture-specific knowledge.
+
+\para{Temperature and prompting.}
+We use temperature 0 and a minimal prompt.
+Higher temperatures might reveal different variance patterns, and chain-of-thought prompting might improve performance on hard tasks---testing this would clarify whether the difficulty is in \emph{accessing} knowledge or in \emph{comparing} accessed values.
+
+\para{Category boundaries.}
+The distinction between ``well-known'' and ``specific'' facts is somewhat subjective.
+Our results themselves suggest a better taxonomy: sequence-based versus independent-value properties.

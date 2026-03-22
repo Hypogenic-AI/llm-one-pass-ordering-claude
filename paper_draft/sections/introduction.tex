@@ -1,0 +1,32 @@
+\section{Introduction}
+\label{sec:intro}
+
+When asked to sort a list of countries alphabetically, a large language model succeeds effortlessly.
+When asked to sort cities by elevation, the same model falters.
+This asymmetry is striking: both tasks require the model to access knowledge and produce an ordered list, yet one is trivially easy and the other surprisingly hard.
+What determines which properties an LLM can reliably order by?
+
+This question has practical consequences.
+LLMs are increasingly embedded in data-processing pipelines that involve sorting and ranking~\cite{patel2025semantic,zhao2025access}.
+Knowing which orderings to trust---and which require external tools---is essential for building reliable systems.
+The question also has scientific value: ordering accuracy provides a direct window into what factual knowledge LLMs have internalized and how precisely they can access it.
+
+Prior work has examined LLM sorting ability, but only along narrow axes.
+\citet{herbold2025sortbench} benchmark syntactic sorting of numbers and strings, finding that frontier models handle it well but struggle with adversarial cases like lexicographic sorting of number words.
+\citet{zhao2025access} compare sorting algorithms (pointwise, pairwise, listwise) on a handful of factual properties such as NBA player heights and country populations, showing that pointwise methods work well when facts reside in parametric memory.
+However, no existing work systematically tests ordering accuracy across a \emph{taxonomy} of property types to identify which features LLMs have easiest access to.
+
+We address this gap with \benchname, a benchmark of 22 ordering tasks organized into five categories (syntactic, well-known factual, general knowledge, specific factual, and temporal) and three difficulty levels.
+Each task presents a shuffled list of 6--10 items and asks the model to sort them by a specified property in a single pass.
+We evaluate \gptlarge and \gptsmall on all tasks using three random shuffles per task and measure ordering quality with \kendalltau, \spearmanrho, and exact-match rate.
+
+Our results reveal a clear \emph{property-accessibility hierarchy}.
+\gptlarge achieves $\tau = 1.0$ on algorithmic operations (alphabetical sorting) and well-known sequences (planet order, Mohs hardness, historical chronologies), but drops to $\tau \approx 0.81$--$0.88$ on tasks requiring precise numeric recall (city elevations, river lengths, building heights).
+\gptlarge significantly outperforms \gptsmall (mean $\tau = 0.948$ vs.\ $0.867$, $p = 0.008$), yet both models agree on which properties are hardest ($\rho = 0.61$, $p = 0.003$), indicating that the hierarchy reflects genuine differences in knowledge encoding rather than model-specific artifacts.
+
+Our contributions are:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+    \item We introduce \benchname, a benchmark of 22 diverse ordering tasks spanning five property categories, designed to probe which features LLMs can most reliably access from parametric memory.
+    \item We identify a property-accessibility hierarchy---from algorithmic operations ($\tau = 1.0$) through memorized sequences ($\tau = 1.0$) and approximate magnitudes ($\tau \approx 0.93$) down to precise numeric facts ($\tau \approx 0.83$)---that is consistent across models.
+    \item We show that the key distinction is not whether knowledge is ``well-known'' versus ``obscure,'' but whether it is stored as a \emph{sequence} versus \emph{independent numeric values}, reframing how we think about factual accessibility in LLMs.
+\end{itemize}

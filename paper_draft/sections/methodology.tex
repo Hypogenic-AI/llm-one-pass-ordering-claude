@@ -1,0 +1,73 @@
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Task Design}
+\label{sec:task_design}
+
+We construct \benchname, a benchmark of 22 ordering tasks organized along two axes: \emph{property category} and \emph{difficulty level}.
+
+\para{Property categories.}
+Each task asks the model to sort a list of items by a single property.
+We define five categories:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+    \item \textbf{Syntactic} (2 tasks): Properties determined by surface form (\eg alphabetical order of country or animal names).
+    \item \textbf{Well-known factual} (3 tasks): Properties that form famous, commonly-taught sequences (\eg planet distance from the Sun, continent area).
+    \item \textbf{General knowledge} (6 tasks): Approximate quantitative properties that educated adults could roughly estimate (\eg animal speeds, country populations).
+    \item \textbf{Specific factual} (7 tasks): Precise numeric properties requiring exact recall (\eg city elevations, river lengths, element atomic weights).
+    \item \textbf{Temporal} (4 tasks): Chronological ordering of events or people (\eg U.S.\ president order, invention dates, celebrity birth dates).
+\end{itemize}
+
+\para{Difficulty levels.}
+Within each category, we assign tasks a difficulty level---easy (5 tasks), medium (8 tasks), or hard (9 tasks)---based on how commonly the ordering is encountered in educational or general-knowledge contexts.
+
+\para{Item lists.}
+Each task contains 6--10 items with verified ground-truth orderings.
+Items are chosen to span the range of the property (\eg cities at diverse elevations) and to include pairs with similar values that test fine-grained discrimination.
+\Tabref{tab:tasks} lists representative tasks.
+
+\begin{table}[t]
+    \centering
+    \caption{Representative tasks from \benchname. Each task specifies a property and a list of 6--10 items with verified ground-truth orderings.}
+    \label{tab:tasks}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llll@{}}
+        \toprule
+        \textbf{Task ID} & \textbf{Property} & \textbf{Category} & \textbf{Sample Items} \\
+        \midrule
+        \texttt{alpha\_countries} & Alphabetical order & Syntactic & France, Germany, Brazil, Japan, \ldots \\
+        \texttt{planet\_distance} & Distance from Sun & Well-known & Saturn, Earth, Mars, Mercury, \ldots \\
+        \texttt{country\_population} & Population & General knowledge & India, Nigeria, Japan, Brazil, \ldots \\
+        \texttt{city\_elevation} & Elevation (m) & Specific factual & Denver, La Paz, Amsterdam, \ldots \\
+        \texttt{celebrity\_dob} & Date of birth & Temporal & Taylor Swift, Elvis Presley, \ldots \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Experimental Protocol}
+\label{sec:protocol}
+
+\para{Prompt design.}
+We use a standardized prompt: \texttt{``Sort the following items by [property]. Return ONLY the sorted list.''}
+This minimal prompt avoids chain-of-thought scaffolding, ensuring that the model must access the relevant knowledge and produce the ordering in a single pass.
+
+\para{Positional-bias control.}
+For each task, we create three random shuffles of the input list (seeded with a fixed random seed of 42) and report the mean metric across shuffles.
+This controls for positional bias, which \citet{tang2023found} show can substantially affect listwise ranking.
+
+\para{Models.}
+We evaluate two models: \gptlarge and \gptsmall.
+\gptlarge represents a frontier-scale model; \gptsmall represents an efficient, smaller model.
+Both are queried via the OpenAI API with temperature 0 and a maximum output length of 1{,}000 tokens.
+
+\subsection{Evaluation Metrics}
+\label{sec:metrics}
+
+We report three metrics:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+    \item \textbf{\kendalltau} (primary): Rank correlation coefficient ranging from $-1$ (reversed) to $+1$ (perfect). Counts the fraction of concordant item pairs.
+    \item \textbf{Exact match}: Binary indicator of whether the predicted ordering is identical to ground truth.
+    \item \textbf{\spearmanrho}: Rank correlation that weights larger displacements more heavily than \kendalltau.
+\end{itemize}
+
+For statistical comparisons, we use the Wilcoxon signed-rank test (paired model comparison), the Kruskal--Wallis test (between-category comparison), and report Spearman correlation for cross-model agreement.

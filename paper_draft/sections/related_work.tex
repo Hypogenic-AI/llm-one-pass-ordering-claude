@@ -1,0 +1,26 @@
+\section{Related Work}
+\label{sec:related}
+
+\para{LLM sorting and ranking benchmarks.}
+\citet{herbold2025sortbench} introduce \textsc{SortBench}, a benchmark that evaluates LLMs on sorting lists of integers, floats, English words, and random strings at lengths from 2 to 256 items.
+They find that frontier models achieve high correctness on standard sorting but that reasoning models can \emph{overthink} adversarial tasks---for instance, sorting number words (``three,'' ``seven'') lexicographically rather than numerically.
+Our work extends this line of inquiry from syntactic sorting to \emph{semantic} sorting: ordering items by factual properties like weight, elevation, or chronological date.
+
+\para{Sorting algorithms for LLMs.}
+\citet{zhao2025access} systematically compare physical implementations for LLM-based ordering---pointwise scoring, pairwise comparison, and listwise ranking---on factual tasks (NBA player heights, country populations) and semantic tasks (passage relevance).
+They find that pointwise methods achieve high accuracy on factual tasks because LLMs can directly recall memorized values, while comparison-based methods excel on semantic tasks.
+Our work complements theirs by holding the algorithm fixed (one-pass listwise) and varying the \emph{property}, revealing which types of factual knowledge are most accessible.
+
+\para{Listwise ranking with LLMs.}
+\citet{sun2023chatgpt} propose \textsc{RankGPT}, which uses LLMs as zero-shot passage re-rankers via a sliding-window listwise approach.
+\citet{tang2023found} address positional bias in listwise ranking by shuffling input order across multiple runs and aggregating results, achieving substantial gains for smaller models.
+\citet{zeng2024rankfusion} identify order inconsistency and transitive inconsistency as fundamental challenges in LLM-based ranking and propose fusion strategies to mitigate them.
+These works focus on passage relevance ranking; we focus on factual ordering where ground truth is objective and measurable.
+
+\para{Probing factual knowledge in LLMs.}
+A growing body of work probes what LLMs ``know'' by testing factual recall~\cite{suzgun2022challenging}.
+\citet{patel2025semantic} formalize semantic operators---including a sort operator---for LLM-based data processing, demonstrating that LLMs can perform rich data transformations.
+Our ordering-based probe complements cloze-style fact probes by testing \emph{relational} knowledge (A $>$ B) rather than pointwise recall.
+
+Unlike prior work, we systematically vary the \emph{type} of property being ordered and measure accuracy across a taxonomy of property categories.
+This enables us to identify a hierarchy of feature accessibility that generalizes across models and provides practical guidance for when to trust LLM-based ordering.

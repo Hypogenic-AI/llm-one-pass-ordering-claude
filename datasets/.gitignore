@@ -1,0 +1,11 @@
+# Exclude large data files
+*.parquet
+*.arrow
+
+# But include documentation and key files
+!.gitignore
+!README.md
+!ordering_tasks.json
+!nba_heights_200.csv
+!population_by_country_2020.csv
+!samples/

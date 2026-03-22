@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "stages": {
+    "resource_finder": {
+      "success": true,
+      "completion_marker": "/workspaces/llm-one-pass-ordering-claude/.resource_finder_complete",
+      "outputs": {
+        "literature_review": "/workspaces/llm-one-pass-ordering-claude/literature_review.md",
+        "resources_catalog": "/workspaces/llm-one-pass-ordering-claude/resources.md",
+        "papers_dir": "/workspaces/llm-one-pass-ordering-claude/papers",
+        "datasets_dir": "/workspaces/llm-one-pass-ordering-claude/datasets",
+        "code_dir": "/workspaces/llm-one-pass-ordering-claude/code"
+      },
+      "log_file": "/workspaces/llm-one-pass-ordering-claude/logs/resource_finder_claude.log",
+      "transcript_file": "/workspaces/llm-one-pass-ordering-claude/logs/resource_finder_claude_transcript.jsonl",
+      "elapsed_time": 1538.4239265918732
+    },
+    "experiment_runner": {
+      "success": true,
+      "return_code": 0,
+      "elapsed_time": 462.48817563056946,
+      "log_file": "/workspaces/llm-one-pass-ordering-claude/logs/execution_claude.log",
+      "transcript_file": "/workspaces/llm-one-pass-ordering-claude/logs/execution_claude_transcript.jsonl"
+    }
+  },
+  "work_dir": "/workspaces/llm-one-pass-ordering-claude"
+}

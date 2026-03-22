@@ -1,0 +1,11 @@
+{
+  "seed": 42,
+  "num_shuffles": 3,
+  "models": [
+    "gpt-4.1",
+    "gpt-4o-mini"
+  ],
+  "temperature": 0.0,
+  "n_tasks": 22,
+  "timestamp": "2026-03-22T04:28:57.004731"
+}

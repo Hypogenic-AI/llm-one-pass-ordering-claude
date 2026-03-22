@@ -1,0 +1,12 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We introduced \benchname, a benchmark of 22 ordering tasks spanning five property categories, and used it to probe which features LLMs can most reliably access from parametric memory.
+Our experiments with \gptlarge and \gptsmall reveal a property-accessibility hierarchy: algorithmic operations and memorized sequences ($\tau = 1.0$) are trivially easy, historical chronologies are near-perfect ($\tau \approx 0.97$), approximate magnitudes are strong but imperfect ($\tau \approx 0.93$), and precise numeric facts are hardest ($\tau \approx 0.83$).
+The critical distinction is not whether knowledge is well-known or obscure, but whether it is stored as a \emph{sequence} or as \emph{independent numeric values}.
+
+These findings have direct practical implications: LLM-based data pipelines should use external tools for ordering by precise numeric properties, while trusting LLMs for sequential and categorical orderings.
+Scientifically, our results suggest that LLMs encode factual knowledge in at least two forms---sequential chains that support reliable ordering, and approximate numeric representations that support coarse but not fine-grained comparison.
+
+Future work should scale to longer lists, test additional model families, investigate whether chain-of-thought reasoning can bridge the gap on hard tasks, and explore whether ordering accuracy correlates with fact frequency in training data.
+The \benchname benchmark and property-accessibility hierarchy provide a foundation for this line of inquiry.

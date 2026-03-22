@@ -1,0 +1,662 @@
+[
+  {
+    "id": "alpha_countries",
+    "property": "alphabetical order",
+    "category": "syntactic",
+    "difficulty": "easy",
+    "description": "Sort countries alphabetically",
+    "items": [
+      "France",
+      "Germany",
+      "Brazil",
+      "Japan",
+      "Australia",
+      "Canada",
+      "India",
+      "Mexico",
+      "Sweden",
+      "Egypt"
+    ],
+    "correct_order": [
+      "Australia",
+      "Brazil",
+      "Canada",
+      "Egypt",
+      "France",
+      "Germany",
+      "India",
+      "Japan",
+      "Mexico",
+      "Sweden"
+    ]
+  },
+  {
+    "id": "alpha_animals",
+    "property": "alphabetical order",
+    "category": "syntactic",
+    "difficulty": "easy",
+    "description": "Sort animals alphabetically",
+    "items": [
+      "Tiger",
+      "Elephant",
+      "Bear",
+      "Dolphin",
+      "Ant",
+      "Whale",
+      "Lion",
+      "Horse",
+      "Cat",
+      "Dog"
+    ],
+    "correct_order": [
+      "Ant",
+      "Bear",
+      "Cat",
+      "Dog",
+      "Dolphin",
+      "Elephant",
+      "Horse",
+      "Lion",
+      "Tiger",
+      "Whale"
+    ]
+  },
+  {
+    "id": "planet_distance",
+    "property": "distance from the Sun (closest to farthest)",
+    "category": "factual_wellknown",
+    "difficulty": "easy",
+    "description": "Sort planets by distance from Sun",
+    "items": [
+      "Saturn",
+      "Earth",
+      "Mars",
+      "Mercury",
+      "Jupiter",
+      "Venus",
+      "Neptune",
+      "Uranus"
+    ],
+    "correct_order": [
+      "Mercury",
+      "Venus",
+      "Earth",
+      "Mars",
+      "Jupiter",
+      "Saturn",
+      "Uranus",
+      "Neptune"
+    ]
+  },
+  {
+    "id": "planet_size",
+    "property": "diameter (smallest to largest)",
+    "category": "factual_wellknown",
+    "difficulty": "easy",
+    "description": "Sort planets by size",
+    "items": [
+      "Earth",
+      "Jupiter",
+      "Mars",
+      "Saturn",
+      "Mercury",
+      "Neptune",
+      "Venus",
+      "Uranus"
+    ],
+    "correct_order": [
+      "Mercury",
+      "Mars",
+      "Venus",
+      "Earth",
+      "Neptune",
+      "Uranus",
+      "Saturn",
+      "Jupiter"
+    ]
+  },
+  {
+    "id": "continent_area",
+    "property": "land area (smallest to largest)",
+    "category": "factual_wellknown",
+    "difficulty": "easy",
+    "description": "Sort continents by area",
+    "items": [
+      "Africa",
+      "Antarctica",
+      "Asia",
+      "Australia",
+      "Europe",
+      "North America",
+      "South America"
+    ],
+    "correct_order": [
+      "Australia",
+      "Europe",
+      "Antarctica",
+      "South America",
+      "North America",
+      "Africa",
+      "Asia"
+    ]
+  },
+  {
+    "id": "country_population",
+    "property": "population (least to most populous, approximate 2023)",
+    "category": "factual_knowledge",
+    "difficulty": "medium",
+    "description": "Sort countries by population",
+    "items": [
+      "Nigeria",
+      "Brazil",
+      "Japan",
+      "Germany",
+      "Australia",
+      "India",
+      "United States",
+      "Indonesia",
+      "Canada",
+      "China"
+    ],
+    "correct_order": [
+      "Australia",
+      "Canada",
+      "Germany",
+      "Japan",
+      "Brazil",
+      "Nigeria",
+      "Indonesia",
+      "United States",
+      "India",
+      "China"
+    ]
+  },
+  {
+    "id": "country_area",
+    "property": "land area (smallest to largest)",
+    "category": "factual_knowledge",
+    "difficulty": "medium",
+    "description": "Sort countries by area",
+    "items": [
+      "Russia",
+      "Canada",
+      "China",
+      "United States",
+      "Brazil",
+      "Australia",
+      "India",
+      "Japan",
+      "France",
+      "United Kingdom"
+    ],
+    "correct_order": [
+      "United Kingdom",
+      "Japan",
+      "France",
+      "India",
+      "Australia",
+      "Brazil",
+      "United States",
+      "China",
+      "Canada",
+      "Russia"
+    ]
+  },
+  {
+    "id": "animal_weight",
+    "property": "typical adult weight (lightest to heaviest)",
+    "category": "factual_knowledge",
+    "difficulty": "medium",
+    "description": "Sort animals by weight",
+    "items": [
+      "Blue Whale",
+      "African Elephant",
+      "Horse",
+      "Lion",
+      "Human",
+      "Dog",
+      "Cat",
+      "Mouse",
+      "Chicken",
+      "Cow"
+    ],
+    "correct_order": [
+      "Mouse",
+      "Chicken",
+      "Cat",
+      "Dog",
+      "Human",
+      "Lion",
+      "Horse",
+      "Cow",
+      "African Elephant",
+      "Blue Whale"
+    ]
+  },
+  {
+    "id": "animal_lifespan",
+    "property": "typical lifespan (shortest to longest)",
+    "category": "factual_knowledge",
+    "difficulty": "medium",
+    "description": "Sort animals by typical lifespan",
+    "items": [
+      "Mayfly",
+      "Mouse",
+      "Dog",
+      "Cat",
+      "Horse",
+      "Human",
+      "Elephant",
+      "Tortoise",
+      "Parrot",
+      "Goldfish"
+    ],
+    "correct_order": [
+      "Mayfly",
+      "Mouse",
+      "Goldfish",
+      "Dog",
+      "Cat",
+      "Horse",
+      "Parrot",
+      "Human",
+      "Elephant",
+      "Tortoise"
+    ]
+  },
+  {
+    "id": "building_height",
+    "property": "height (shortest to tallest)",
+    "category": "factual_knowledge",
+    "difficulty": "medium",
+    "description": "Sort famous buildings/structures by height",
+    "items": [
+      "Burj Khalifa",
+      "Empire State Building",
+      "Eiffel Tower",
+      "Big Ben",
+      "Statue of Liberty",
+      "Leaning Tower of Pisa",
+      "Great Pyramid of Giza",
+      "Willis Tower",
+      "One World Trade Center",
+      "Taj Mahal"
+    ],
+    "correct_order": [
+      "Leaning Tower of Pisa",
+      "Taj Mahal",
+      "Big Ben",
+      "Statue of Liberty",
+      "Great Pyramid of Giza",
+      "Eiffel Tower",
+      "Empire State Building",
+      "Willis Tower",
+      "One World Trade Center",
+      "Burj Khalifa"
+    ]
+  },
+  {
+    "id": "us_president_chronological",
+    "property": "chronological order of presidency (earliest to latest)",
+    "category": "temporal",
+    "difficulty": "medium",
+    "description": "Sort US presidents chronologically",
+    "items": [
+      "Abraham Lincoln",
+      "George Washington",
+      "Barack Obama",
+      "Theodore Roosevelt",
+      "John F. Kennedy",
+      "Thomas Jefferson",
+      "Franklin D. Roosevelt",
+      "Ronald Reagan",
+      "Donald Trump",
+      "Joe Biden"
+    ],
+    "correct_order": [
+      "George Washington",
+      "Thomas Jefferson",
+      "Abraham Lincoln",
+      "Theodore Roosevelt",
+      "Franklin D. Roosevelt",
+      "John F. Kennedy",
+      "Ronald Reagan",
+      "Barack Obama",
+      "Donald Trump",
+      "Joe Biden"
+    ]
+  },
+  {
+    "id": "invention_date",
+    "property": "date of invention/discovery (earliest to latest)",
+    "category": "temporal",
+    "difficulty": "medium",
+    "description": "Sort inventions by date",
+    "items": [
+      "Telephone",
+      "Internet",
+      "Printing Press",
+      "Steam Engine",
+      "Television",
+      "Airplane",
+      "Wheel",
+      "Electricity",
+      "Smartphone",
+      "Compass"
+    ],
+    "correct_order": [
+      "Wheel",
+      "Compass",
+      "Printing Press",
+      "Steam Engine",
+      "Electricity",
+      "Telephone",
+      "Airplane",
+      "Television",
+      "Internet",
+      "Smartphone"
+    ]
+  },
+  {
+    "id": "historical_event_date",
+    "property": "chronological order (earliest to latest)",
+    "category": "temporal",
+    "difficulty": "medium",
+    "description": "Sort historical events chronologically",
+    "items": [
+      "Moon Landing",
+      "Fall of Roman Empire",
+      "World War II",
+      "French Revolution",
+      "Discovery of America",
+      "Industrial Revolution",
+      "Construction of Great Wall of China",
+      "Renaissance",
+      "World War I",
+      "Cold War"
+    ],
+    "correct_order": [
+      "Construction of Great Wall of China",
+      "Fall of Roman Empire",
+      "Renaissance",
+      "Discovery of America",
+      "French Revolution",
+      "Industrial Revolution",
+      "World War I",
+      "World War II",
+      "Moon Landing",
+      "Cold War"
+    ]
+  },
+  {
+    "id": "element_atomic_number",
+    "property": "atomic number (lowest to highest)",
+    "category": "factual_specific",
+    "difficulty": "hard",
+    "description": "Sort chemical elements by atomic number",
+    "items": [
+      "Gold",
+      "Iron",
+      "Carbon",
+      "Oxygen",
+      "Hydrogen",
+      "Silver",
+      "Uranium",
+      "Helium",
+      "Nitrogen",
+      "Copper"
+    ],
+    "correct_order": [
+      "Hydrogen",
+      "Helium",
+      "Carbon",
+      "Nitrogen",
+      "Oxygen",
+      "Iron",
+      "Copper",
+      "Silver",
+      "Gold",
+      "Uranium"
+    ]
+  },
+  {
+    "id": "element_weight",
+    "property": "atomic weight (lightest to heaviest)",
+    "category": "factual_specific",
+    "difficulty": "hard",
+    "description": "Sort chemical elements by atomic weight",
+    "items": [
+      "Gold",
+      "Iron",
+      "Carbon",
+      "Oxygen",
+      "Hydrogen",
+      "Silver",
+      "Uranium",
+      "Helium",
+      "Nitrogen",
+      "Copper"
+    ],
+    "correct_order": [
+      "Hydrogen",
+      "Helium",
+      "Carbon",
+      "Nitrogen",
+      "Oxygen",
+      "Iron",
+      "Copper",
+      "Silver",
+      "Gold",
+      "Uranium"
+    ]
+  },
+  {
+    "id": "city_latitude",
+    "property": "latitude (southernmost to northernmost)",
+    "category": "factual_specific",
+    "difficulty": "hard",
+    "description": "Sort cities by latitude",
+    "items": [
+      "London",
+      "Tokyo",
+      "Sydney",
+      "New York",
+      "Cairo",
+      "Moscow",
+      "Rio de Janeiro",
+      "Singapore",
+      "Stockholm",
+      "Cape Town"
+    ],
+    "correct_order": [
+      "Cape Town",
+      "Sydney",
+      "Rio de Janeiro",
+      "Singapore",
+      "Cairo",
+      "Tokyo",
+      "New York",
+      "London",
+      "Stockholm",
+      "Moscow"
+    ]
+  },
+  {
+    "id": "city_elevation",
+    "property": "elevation above sea level (lowest to highest)",
+    "category": "factual_specific",
+    "difficulty": "hard",
+    "description": "Sort cities by elevation",
+    "items": [
+      "Denver",
+      "Mexico City",
+      "La Paz",
+      "Amsterdam",
+      "Nairobi",
+      "Kathmandu",
+      "Tokyo",
+      "Bogota",
+      "Addis Ababa",
+      "New Orleans"
+    ],
+    "correct_order": [
+      "New Orleans",
+      "Amsterdam",
+      "Tokyo",
+      "Nairobi",
+      "Denver",
+      "Addis Ababa",
+      "Mexico City",
+      "Bogota",
+      "Kathmandu",
+      "La Paz"
+    ]
+  },
+  {
+    "id": "river_length",
+    "property": "length (shortest to longest)",
+    "category": "factual_specific",
+    "difficulty": "hard",
+    "description": "Sort rivers by length",
+    "items": [
+      "Nile",
+      "Amazon",
+      "Mississippi",
+      "Yangtze",
+      "Danube",
+      "Thames",
+      "Rhine",
+      "Ganges",
+      "Congo",
+      "Mekong"
+    ],
+    "correct_order": [
+      "Thames",
+      "Rhine",
+      "Danube",
+      "Ganges",
+      "Mekong",
+      "Congo",
+      "Mississippi",
+      "Yangtze",
+      "Amazon",
+      "Nile"
+    ]
+  },
+  {
+    "id": "color_wavelength",
+    "property": "wavelength of visible light (shortest to longest)",
+    "category": "factual_specific",
+    "difficulty": "hard",
+    "description": "Sort colors by wavelength",
+    "items": [
+      "Red",
+      "Orange",
+      "Yellow",
+      "Green",
+      "Blue",
+      "Violet"
+    ],
+    "correct_order": [
+      "Violet",
+      "Blue",
+      "Green",
+      "Yellow",
+      "Orange",
+      "Red"
+    ]
+  },
+  {
+    "id": "mohs_hardness",
+    "property": "Mohs hardness scale (softest to hardest)",
+    "category": "factual_specific",
+    "difficulty": "hard",
+    "description": "Sort minerals by Mohs hardness",
+    "items": [
+      "Diamond",
+      "Quartz",
+      "Talc",
+      "Topaz",
+      "Corundum",
+      "Calcite",
+      "Feldspar",
+      "Gypsum",
+      "Apatite",
+      "Fluorite"
+    ],
+    "correct_order": [
+      "Talc",
+      "Gypsum",
+      "Calcite",
+      "Fluorite",
+      "Apatite",
+      "Feldspar",
+      "Quartz",
+      "Topaz",
+      "Corundum",
+      "Diamond"
+    ]
+  },
+  {
+    "id": "celebrity_dob",
+    "property": "date of birth (oldest to youngest)",
+    "category": "temporal",
+    "difficulty": "hard",
+    "description": "Sort celebrities by date of birth",
+    "items": [
+      "Taylor Swift",
+      "Beyonc\u00e9",
+      "Elvis Presley",
+      "Michael Jackson",
+      "Lady Gaga",
+      "Madonna",
+      "Frank Sinatra",
+      "Adele",
+      "Whitney Houston",
+      "Ed Sheeran"
+    ],
+    "correct_order": [
+      "Frank Sinatra",
+      "Elvis Presley",
+      "Madonna",
+      "Michael Jackson",
+      "Whitney Houston",
+      "Beyonc\u00e9",
+      "Lady Gaga",
+      "Adele",
+      "Taylor Swift",
+      "Ed Sheeran"
+    ]
+  },
+  {
+    "id": "speed_of_animals",
+    "property": "maximum running/swimming speed (slowest to fastest)",
+    "category": "factual_knowledge",
+    "difficulty": "hard",
+    "description": "Sort animals by maximum speed",
+    "items": [
+      "Cheetah",
+      "Snail",
+      "Horse",
+      "Falcon",
+      "Turtle",
+      "Rabbit",
+      "Human",
+      "Dolphin",
+      "Greyhound",
+      "Elephant"
+    ],
+    "correct_order": [
+      "Snail",
+      "Turtle",
+      "Elephant",
+      "Human",
+      "Rabbit",
+      "Horse",
+      "Greyhound",
+      "Dolphin",
+      "Cheetah",
+      "Falcon"
+    ]
+  }
+]

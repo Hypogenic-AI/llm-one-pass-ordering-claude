@@ -1,0 +1,762 @@
+You are an academic paper writer. Generate a complete NEURIPS style paper
+based on the experiment results provided.
+
+════════════════════════════════════════════════════════════════════════════════
+                         IMPORTANT: BEFORE YOU START
+════════════════════════════════════════════════════════════════════════════════
+
+Before writing any content, you MUST complete these steps:
+
+1. READ THE SKILL: Review the paper-writer skill at .claude/skills/paper-writer/SKILL.md
+2. READ THE STYLE GUIDE: Study templates/paper_writing/lab_style_guide.md carefully
+3. REVIEW EXAMPLES: Browse paper_examples/ for formatting and language patterns:
+   - Look at sections/1.introduction.tex for language style
+   - Look at tables/*.tex for table formatting
+   - Look at commands/*.tex for macro usage
+4. VERIFY COMMAND TEMPLATES: Command templates (math.tex, general.tex, macros.tex) are pre-copied to paper_draft/commands/
+
+CRITICAL: Reference example papers for FORMATTING and LANGUAGE STYLE only.
+Do NOT copy content, phrasing, or narrative structure from the example papers.
+The examples are in a different research domain - focus only on presentation style.
+
+════════════════════════════════════════════════════════════════════════════════
+                            EXPERIMENT REPORT
+════════════════════════════════════════════════════════════════════════════════
+
+# LLM One-pass Orderings: Which Features Do LLMs Have Easiest Access To?
+
+## 1. Executive Summary
+
+We systematically tested how well large language models can sort lists of items by different properties in a single pass—alphabetical order, physical weight, historical dates, geographic facts, and more. By measuring ordering accuracy across 22 tasks in 5 property categories, we identify which types of knowledge LLMs access most reliably from parametric memory.
+
+**Key finding**: LLMs order by syntactic properties (alphabetical) and well-known categorical facts (planet order, president chronology) nearly perfectly, but struggle with continuous numeric properties requiring precise recall (city elevations, river lengths, building heights). This suggests LLMs have excellent access to *categorical/sequential* knowledge but poorer access to *precise quantitative* knowledge. GPT-4.1 significantly outperforms GPT-4o-mini (mean τ = 0.948 vs 0.867, p = 0.008), but both models agree on which properties are hardest (Spearman ρ = 0.61, p = 0.003).
+
+## 2. Goal
+
+**Hypothesis**: The ability of LLMs to correctly order items by various properties varies systematically, and these patterns reveal which features LLMs have easier or harder access to in parametric memory.
+
+**Why this matters**: LLMs are increasingly used for data processing including sorting and ranking. Understanding which properties they can reliably sort by informs (1) when to trust LLM-based data pipelines, (2) what knowledge representations LLMs have internalized, and (3) how to design better evaluation benchmarks.
+
+**Gap filled**: Prior work (SortBench 2025) tested syntactic sorting; Access Paths (2025) tested a few factual properties. No work has systematically compared ordering accuracy across a taxonomy of property types to identify patterns of feature accessibility.
+
+## 3. Data Construction
+
+### Dataset Description
+- **Primary dataset**: `ordering_tasks.json` — 22 hand-curated ordering tasks
+- **5 categories**: syntactic (2), factual_wellknown (3), factual_knowledge (6), factual_specific (7), temporal (4)
+- **3 difficulty levels**: easy (5), medium (8), hard (9)
+- **Items per task**: 6–10 items
+- **Ground truth**: Verified correct orderings for each property
+
+### Example Samples
+
+| Task ID | Property | Items (sample) | Category |
+|---------|----------|----------------|----------|
+| alpha_countries | Alphabetical order | France, Germany, Brazil, Japan, ... | Syntactic |
+| planet_distance | Distance from Sun | Saturn, Earth, Mars, Mercury, ... | Well-known fact |
+| city_elevation | Elevation above sea level | Denver, La Paz, Amsterdam, ... | Specific fact |
+| celebrity_dob | Date of birth | Taylor Swift, Elvis Presley, ... | Temporal |
+
+### Preprocessing
+- Each task tested with 3 random shuffles of input order (to control for positional bias)
+- Temperature = 0 for reproducibility
+- Standardized prompt: &#34;Sort the following items by [property]. Return ONLY the sorted list.&#34;
+
+## 4. Experiment Description
+
+### Methodology
+
+#### High-Level Approach
+One-pass listwise ordering: present a shuffled list to the LLM, ask it to sort by a specified property, parse the output, and compare to ground truth using rank correlation metrics.
+
+#### Why This Method?
+One-pass ordering (vs. pairwise or iterative) directly tests what knowledge the LLM can access from parametric memory without multi-step reasoning. This is the most revealing approach for our research question.
+
+### Implementation Details
+
+#### Tools and Libraries
+- Python 3.12, OpenAI API (openai 1.x)
+- scipy 1.15.x (Kendall&#39;s τ, Spearman&#39;s ρ, statistical tests)
+- matplotlib 3.10.x, seaborn 0.13.x (visualization)
+- numpy 2.2.x, pandas 2.2.x
+
+#### Models Tested
+| Model | Reasoning | Cost (per 1M tokens) |
+|-------|-----------|---------------------|
+| GPT-4.1 | Strong, current SOTA | ~$2/input, ~$8/output |
+| GPT-4o-mini | Efficient, smaller | ~$0.15/input, ~$0.60/output |
+
+#### Hyperparameters
+| Parameter | Value | Justification |
+|-----------|-------|---------------|
+| Temperature | 0.0 | Reproducibility |
+| Shuffles per task | 3 | Control for positional bias |
+| Max tokens | 1000 | Sufficient for 10-item lists |
+| Random seed | 42 | Reproducibility |
+
+### Evaluation Metrics
+- **Kendall&#39;s τ** (primary): Rank correlation, -1 to 1. Measures fraction of concordant pairs.
+- **Exact match**: Binary — is ordering perfectly correct?
+- **Spearman&#39;s ρ**: Alternative rank correlation (more sensitive to displacement magnitude)
+
+### Raw Results
+
+#### Overall Performance
+
+| Model | Mean τ | Std τ | Exact Match Rate | Perfect Tasks |
+|-------|--------|-------|------------------|---------------|
+| GPT-4.1 | 0.948 | 0.064 | 54.5% | 10/22 |
+| GPT-4o-mini | 0.867 | 0.190 | 47.0% | 7/22 |
+
+#### Performance by Category
+
+| Category | GPT-4.1 τ | GPT-4o-mini τ |
+|----------|-----------|---------------|
+| Syntactic (Alphabetical) | 1.000 ± 0.000 | 1.000 ± 0.000 |
+| Well-Known Facts | 1.000 ± 0.000 | 0.884 ± 0.165 |
+| Temporal Ordering | 0.974 ± 0.045 | 0.926 ± 0.054 |
+| General Knowledge | 0.909 ± 0.049 | 0.843 ± 0.164 |
+| Specific Facts | 0.930 ± 0.075 | 0.810 ± 0.256 |
+
+#### Per-Task Results (GPT-4.1)
+
+| Task | Category | τ | Exact Match |
+|------|----------|---|-------------|
+| alpha_countries | Syntactic | 1.000 | 100% |
+| alpha_animals | Syntactic | 1.000 | 100% |
+| planet_distance | Well-Known | 1.000 | 100% |
+| planet_size | Well-Known | 1.000 | 100% |
+| continent_area | Well-Known | 1.000 | 100% |
+| us_president_chronological | Temporal | 1.000 | 100% |
+| invention_date | Temporal | 1.000 | 100% |
+| historical_event_date | Temporal | 1.000 | 100% |
+| element_atomic_number | Specific | 1.000 | 100% |
+| color_wavelength | Specific | 1.000 | 100% |
+| mohs_hardness | Specific | 1.000 | 100% |
+| element_weight | Specific | 0.970 | 67% |
+| speed_of_animals | Knowledge | 0.956 | 0% |
+| animal_weight | Knowledge | 0.956 | 0% |
+| country_population | Knowledge | 0.941 | 0% |
+| animal_lifespan | Knowledge | 0.911 | 33% |
+| celebrity_dob | Temporal | 0.896 | 0% |
+| river_length | Specific | 0.881 | 0% |
+| building_height | Knowledge | 0.867 | 0% |
+| city_latitude | Specific | 0.852 | 0% |
+| country_area | Knowledge | 0.822 | 0% |
+| city_elevation | Specific | 0.807 | 0% |
+
+### Visualizations
+
+All plots saved to `results/plots/`:
+- `category_comparison.png` — Bar chart comparing models across categories
+- `task_heatmap.png` — Heatmap of τ values for all task/model combinations
+- `task_ranking.png` — Horizontal bar chart ranking tasks by difficulty
+- `model_agreement.png` — Scatter plot showing cross-model correlation
+- `difficulty_breakdown.png` — Performance by difficulty level within categories
+
+## 5. Result Analysis
+
+### Key Findings
+
+**Finding 1: Syntactic ordering is trivially easy.**
+Both models achieve τ = 1.000 on alphabetical sorting with 100% exact match. This is the easiest property to access—it&#39;s a mechanical operation on token representations.
+
+**Finding 2: Well-known categorical sequences are near-perfect for strong models.**
+GPT-4.1 achieves τ = 1.000 on planet order, planet size, and continent area. These are heavily represented in training data as fixed sequences. However, GPT-4o-mini drops to τ = 0.651 on continent area, showing this knowledge is less robustly encoded in smaller models.
+
+**Finding 3: Temporal ordering is surprisingly strong.**
+GPT-4.1 achieves τ = 1.000 on US presidents, inventions, and historical events (all medium difficulty). This suggests LLMs have excellent access to temporal/sequential knowledge for historically significant events. The exception is celebrity birth dates (τ = 0.896), where precise dates matter more than relative chronology.
+
+**Finding 4: Continuous quantitative properties are hardest.**
+The bottom 5 tasks for both models all involve ordering by continuous numeric values:
+- City elevation (τ = 0.807/0.733)
+- Country area (τ = 0.822/0.763)
+- City latitude (τ = 0.852/0.659)
+- Building height (τ = 0.867/0.511)
+- River length (τ = 0.881/0.274)
+
+These require recalling specific numbers (e.g., &#34;Denver is at 1,609m, Nairobi is at 1,795m&#34;) rather than categorical knowledge.
+
+**Finding 5: Some &#34;specific&#34; facts are actually well-known sequences.**
+Element atomic numbers (τ = 1.000), Mohs hardness scale (τ = 1.000), and color wavelength order (τ = 1.000) are labeled &#34;specific&#34; but are actually well-known *fixed sequences* taught in education. The key distinction is not specificity but whether the ordering forms a commonly-taught sequence vs. requiring independent numeric recall.
+
+**Finding 6: GPT-4.1 significantly outperforms GPT-4o-mini.**
+Wilcoxon signed-rank test: W = 10.5, p = 0.008. The mean difference is +0.081 τ units. GPT-4.1 is more uniformly strong, while GPT-4o-mini has catastrophic failures on some tasks (river_length: τ = 0.274).
+
+**Finding 7: Models agree on which properties are hard.**
+Cross-model Spearman correlation: ρ = 0.611, p = 0.003. The property accessibility hierarchy is not model-specific—it reflects genuine differences in how well different types of knowledge are encoded.
+
+### Property Accessibility Hierarchy
+
+Based on our results, LLMs have access to features in this order (easiest to hardest):
+
+1. **Algorithmic/syntactic** (τ ≈ 1.0): Alphabetical sorting — a mechanical operation
+2. **Famous sequences** (τ ≈ 1.0): Planet order, periodic table, Mohs scale, color spectrum — memorized as fixed sequences
+3. **Historical chronology** (τ ≈ 0.97): Presidents, inventions, events — strong temporal associations
+4. **Approximate magnitudes** (τ ≈ 0.93): Animal weights, speeds, populations — rough size categories
+5. **Precise numeric facts** (τ ≈ 0.83): City elevations, river lengths, building heights — requires exact number recall
+
+### Hypothesis Testing Results
+
+| Hypothesis | Supported? | Evidence |
+|-----------|-----------|----------|
+| H1: Syntactic easiest | **Yes** | τ = 1.000 for both models |
+| H2: Well-known &gt; obscure | **Partially** | Well-known facts perfect for GPT-4.1, but some &#34;specific&#34; facts (Mohs, elements) are also perfect because they&#39;re known sequences |
+| H3: Temporal intermediate | **No** — temporal was near-perfect | τ = 0.974 for GPT-4.1, almost as good as syntactic |
+| H4: Difficulty varies within categories | **Yes** | Large variance within factual_specific (0.807 to 1.000) |
+| H5: Patterns consistent across models | **Yes** | ρ = 0.611, p = 0.003 |
+
+### Statistical Tests
+
+- **Kruskal-Wallis across categories (GPT-4.1)**: H = 7.79, p = 0.10. Not significant at α = 0.05, but trending. The high performance across the board compresses variance.
+- **Kruskal-Wallis (GPT-4o-mini)**: H = 4.17, p = 0.38. Not significant, due to high within-category variance.
+- **Model comparison (Wilcoxon)**: W = 10.5, p = 0.008. Significant — GPT-4.1 is reliably better.
+
+### Error Analysis
+
+The most common error pattern is **adjacent swaps** rather than gross misordering. For example:
+- Building height: Big Ben and Statue of Liberty swapped (96m vs 93m — very close)
+- Country area: Australia and Brazil swapped (similar sizes)
+- City elevation: Fine ordering of mid-range cities confused
+
+This suggests LLMs have rough magnitude knowledge but lose precision when values are close together, consistent with storing approximate rather than exact numeric facts.
+
+### Surprises and Insights
+
+1. **Mohs hardness scale**: Perfect performance despite being &#34;factual_specific&#34; — this is a well-known educational sequence, not a set of independent facts.
+2. **River length near-failure for GPT-4o-mini** (τ = 0.274): This is close to random. The model appears to have very little knowledge of relative river lengths.
+3. **Temporal ordering strength**: We expected this to be intermediate, but famous historical sequences are extremely well-encoded.
+4. **The real distinction is sequence vs. independent facts**: Tasks where items form a commonly-taught sequence (planets, periodic table, presidents) are easy. Tasks where each item&#39;s value must be independently recalled from memory are hard.
+
+### Limitations
+
+1. **Small task set**: 22 tasks with 6-10 items each. Larger lists would likely show more degradation.
+2. **Only 2 models tested**: Adding Claude, Gemini, and open models would strengthen generalizability claims.
+3. **Ground truth ambiguity**: Some orderings depend on measurement methodology (e.g., &#34;typical&#34; animal lifespan).
+4. **Only English**: Cross-lingual ordering might reveal different patterns.
+5. **Temperature 0 only**: Higher temperatures might show different variance patterns.
+6. **Category boundaries**: The distinction between &#34;well-known&#34; and &#34;specific&#34; facts is somewhat subjective.
+7. **Statistical power**: With only 2-7 tasks per category, between-category tests lack power.
+
+## 6. Conclusions
+
+### Summary
+LLMs can reliably order items by properties that are encoded as **well-known sequences** (alphabetical, planetary, chronological) or **categorical magnitude** (animal sizes, population rough order). They struggle with properties requiring **precise numeric recall** of independent facts (city elevations, river lengths, building heights). The key distinction is not whether knowledge is &#34;well-known&#34; vs. &#34;obscure,&#34; but whether it&#39;s stored as a **sequence** vs. **independent numeric values**.
+
+### Implications
+
+**Practical**: When building LLM-based data processing pipelines, trust LLMs for ordering by well-known categorical or sequential properties. Use external tools (databases, APIs) for ordering by precise numeric facts.
+
+**Theoretical**: LLMs appear to store factual knowledge in two forms: (1) sequential/associative chains (A comes before B) that enable reliable ordering, and (2) approximate numeric representations that enable rough magnitude comparison but not precise ordering. This aligns with the &#34;Access Paths&#34; paper&#39;s finding that pointwise ordering works well only when facts are in parametric memory.
+
+**For LLM evaluation**: Ordering tasks provide a clean, scalable way to probe what knowledge LLMs have internalized. The gap between sequence-based and numeric ordering reveals the boundary between &#34;knowing&#34; and &#34;precisely recalling.&#34;
+
+### Confidence in Findings
+**Moderate-high**. The patterns are clear and consistent across models, with statistically significant model differences. However, the task set is small and only 2 models were tested. The core finding—that sequences are easier than independent numeric facts—is robust.
+
+## 7. Next Steps
+
+### Immediate Follow-ups
+1. **Scale up list length**: Test with 20, 50, 100 items to find degradation curves
+2. **More models**: Test Claude 4.5, Gemini 2.5 Pro, Llama 3, Qwen 2.5 to confirm cross-model patterns
+3. **More property types**: Add sensory properties (taste, smell descriptors), cultural knowledge, relative spatial relationships
+
+### Alternative Approaches
+- **Pointwise scoring**: Ask LLMs to assign numeric values, then sort externally — compare accuracy to direct ordering
+- **Chain-of-thought**: Test if CoT reasoning improves ordering of hard properties
+- **Fine-grained error analysis**: For each error, determine if the LLM&#39;s ordering reflects a plausible but incorrect value or a random guess
+
+### Open Questions
+1. Does ordering accuracy correlate with fact frequency in training data?
+2. Do LLMs store ordering relationships (A &gt; B) directly, or derive them from stored values?
+3. Can we predict ordering difficulty from property characteristics without running experiments?
+4. How does list length interact with property type — do &#34;easy&#34; properties degrade at different rates than &#34;hard&#34; ones?
+
+## References
+
+1. Herbold, S. (2025). SortBench: Benchmarking LLMs based on their ability to sort lists. arXiv:2504.08312.
+2. Zhao, F. et al. (2025). Access Paths for Efficient Ordering with Large Language Models. arXiv:2509.00303.
+3. Tang, R. et al. (2023). Found in the Middle: Permutation Self-Consistency Improves Listwise Ranking. arXiv:2310.07712.
+4. Patel, L. et al. (2025). Semantic Operators: A Declarative Model for Rich, AI-based Data Processing. arXiv:2407.11418.
+5. Sun, W. et al. (2023). Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agent. arXiv:2304.09542.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                            RESEARCH PLAN
+════════════════════════════════════════════════════════════════════════════════
+
+# Research Plan: LLM One-pass Orderings
+
+## Motivation &amp; Novelty Assessment
+
+### Why This Research Matters
+LLMs are increasingly used for data processing tasks including sorting and ranking. Understanding which properties LLMs can reliably order by reveals what factual knowledge is easily accessible in their parametric memory vs. what requires computation or external tools. This has practical implications for building reliable LLM-based data pipelines and for understanding LLM knowledge representations.
+
+### Gap in Existing Work
+SortBench (2025) tests syntactic sorting (numbers, strings) but not factual/semantic sorting. Access Paths (2025) tests a few factual properties (NBA heights, country populations) but doesn&#39;t systematically compare across property types. **No existing work creates a taxonomy of property accessibility by testing LLMs on diverse ordering tasks spanning syntactic, temporal, and factual properties.**
+
+### Our Novel Contribution
+We systematically test LLM one-pass ordering ability across 22 tasks in 5 categories (syntactic, factual_wellknown, factual_knowledge, factual_specific, temporal) and 3 difficulty levels. By measuring ordering accuracy per category, we reveal which &#34;features&#34; LLMs have easiest access to, creating a property accessibility hierarchy.
+
+### Experiment Justification
+- **Experiment 1 (Main ordering test)**: Tests GPT-4.1 on all 22 tasks with 3 random shuffles each. Needed to establish the baseline ordering performance across all property types.
+- **Experiment 2 (Model comparison)**: Tests GPT-4o-mini on same tasks. Needed to see if property accessibility patterns are model-dependent or universal.
+- **Experiment 3 (Positional bias check)**: Multiple shuffles per task reveal whether failures are due to knowledge gaps or input order sensitivity.
+
+## Research Question
+Can we use LLM ordering accuracy across diverse property types (alphabetical, weight, dates, geographic facts, etc.) to identify which features LLMs have easier or harder access to in their parametric memory?
+
+## Hypothesis Decomposition
+1. **H1**: Syntactic properties (alphabetical order) are easiest to order correctly.
+2. **H2**: Well-known factual properties (planet distances, continent sizes) are easier than obscure ones (city elevations, river lengths).
+3. **H3**: Temporal ordering (historical events, birth dates) falls between syntactic and factual in difficulty.
+4. **H4**: Performance varies by difficulty level within categories.
+5. **H5**: Property accessibility patterns are consistent across different models.
+
+## Proposed Methodology
+
+### Approach
+One-pass listwise ordering: present shuffled items to the LLM, ask it to sort by a specified property, parse the output, and compare to ground truth using Kendall&#39;s tau.
+
+### Experimental Steps
+1. For each of 22 tasks, create 3 random shuffles of the items
+2. Send each shuffle to the LLM with a standardized prompt
+3. Parse the LLM&#39;s ordered output
+4. Compute Kendall&#39;s tau, Spearman&#39;s rho, and exact match against ground truth
+5. Aggregate by category and difficulty level
+6. Compare across models (GPT-4.1 vs GPT-4o-mini)
+
+### Baselines
+- Random ordering (expected Kendall&#39;s tau ≈ 0)
+- Input order (no reordering - tests if model just echoes input)
+
+### Evaluation Metrics
+- **Kendall&#39;s tau** (primary): rank correlation, -1 to 1
+- **Spearman&#39;s rho**: alternative rank correlation
+- **Exact match**: binary - is the ordering perfectly correct?
+- **Displacement score**: average positional displacement per item
+
+### Statistical Analysis Plan
+- Compare category means with one-way ANOVA or Kruskal-Wallis
+- Pairwise comparisons with Bonferroni correction
+- 95% confidence intervals for all metrics
+- Effect sizes (Cohen&#39;s d) for key comparisons
+
+## Expected Outcomes
+- Syntactic ordering (alphabetical): tau &gt; 0.9
+- Well-known facts (planets, continents): tau &gt; 0.8
+- General knowledge (populations, weights): tau 0.5-0.8
+- Specific facts (elevations, river lengths): tau 0.3-0.6
+- Temporal ordering: tau 0.6-0.9 (varies by familiarity)
+
+## Timeline
+- Phase 1 (Planning): 10 min ✓
+- Phase 2 (Setup): 10 min
+- Phase 3 (Implementation): 30 min
+- Phase 4 (Run experiments): 30 min
+- Phase 5 (Analysis): 20 min
+- Phase 6 (Documentation): 20 min
+
+## Potential Challenges
+- API rate limits → use exponential backoff
+- Output parsing failures → robust regex + JSON parsing
+- Ambiguous ground truths → verify with multiple sources
+- Positional bias → mitigate with multiple shuffles
+
+## Success Criteria
+1. Successfully run ordering tests on all 22 tasks with at least 2 models
+2. Identify statistically significant differences between property categories
+3. Create a clear property accessibility hierarchy
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          LITERATURE REVIEW
+════════════════════════════════════════════════════════════════════════════════
+
+# Literature Review: LLM One-pass Orderings
+
+## Research Area Overview
+
+This research investigates how well large language models (LLMs) can order lists of items by various factual properties in a single pass (without multi-step reasoning or tool use). The hypothesis is that LLM ordering ability varies systematically across property types—some orderings consistently succeed, some fail, and some fail abysmally—and that these patterns reveal which features LLMs have easier or harder access to in their parametric memory.
+
+This work sits at the intersection of three research areas: (1) LLM-based sorting/ranking, (2) factual knowledge probing in LLMs, and (3) LLM evaluation benchmarks.
+
+## Key Papers
+
+### Paper 1: SortBench: Benchmarking LLMs based on their ability to sort lists
+- **Authors**: Steffen Herbold
+- **Year**: 2025
+- **Source**: arXiv:2504.08312
+- **Key Contribution**: First comprehensive benchmark specifically for LLM sorting ability across different data types and difficulties.
+- **Methodology**: Generates lists of various types (integers, floats, English words, random strings) at different lengths (2-256 items) and evaluates LLMs on sorting correctness, faithfulness (not changing items), and output validity.
+- **Datasets Used**: Synthetically generated lists of integers, floats, words, random strings, number words.
+- **Results**:
+  - o3-mini dominates overall (0.977 ModelScore), followed by GPT-4o (0.914)
+  - Claude-3.5-Sonnet excels at sorting correctness (0.962) but struggles with output validity
+  - Key finding: **NumberWords task** (sorting written-out numbers like &#34;three&#34;, &#34;seven&#34; lexicographically) fools reasoning models—they convert to numeric values instead of sorting lexicographically
+  - All models struggle with faithfulness on long lists (drop/add items)
+  - Test-time reasoning can cause *overthinking*, especially in DeepSeek-r1
+- **Code Available**: Repository mentioned but blinded in paper
+- **Relevance**: Directly related—tests syntactic sorting. Our research extends this to *semantic/factual* sorting (ordering by properties like weight, height, date of birth). SortBench&#39;s NumberWords finding about syntax vs. semantics confusion is particularly relevant.
+
+### Paper 2: Access Paths for Efficient Ordering with Large Language Models
+- **Authors**: Fuheng Zhao et al. (Snowflake, UChicago, UCLA, UCSB)
+- **Year**: 2025
+- **Source**: arXiv:2509.00303
+- **Key Contribution**: Systematic study of different physical implementations for LLM-based semantic sorting (pointwise, pairwise, listwise, merge sort).
+- **Methodology**: Compares value-based (pointwise) vs. comparison-based (pairwise) sorting across factual and semantic tasks.
+- **Datasets Used**: NBA player heights (200 players), World Population (200 countries), TREC DL19/DL20 (passage ranking), TweetEval (sentiment), SembenchMovie (review sentiment).
+- **Results**:
+  - **Critical finding for our research**: For factual data (NBA heights, country populations), **pointwise methods achieve high accuracy with minimal cost** because LLMs directly recall memorized facts from training data
+  - For non-factual tasks (passage relevance ranking), comparison-based methods excel
+  - No single algorithm is universally optimal across all task types
+  - The authors note pointwise success on factual tasks likely stems from **memorization of training corpora** (e.g., Wikipedia)
+- **Code Available**: https://github.com/ZhaoFuheng/OrderByLLM
+- **Relevance**: Highly relevant—demonstrates that LLM ordering success on factual properties depends on whether the knowledge is in parametric memory. Our research systematically tests which properties are accessible.
+
+### Paper 3: Semantic Operators: A Declarative Model for Rich, AI-based Data Processing
+- **Authors**: Liana Patel et al. (Stanford, UC Berkeley)
+- **Year**: 2025
+- **Source**: arXiv:2407.11418
+- **Key Contribution**: Formalizes semantic operators including sem_topk for LLM-based ranking, implemented in the LOTUS system.
+- **Methodology**: Proposes semantic operators (filter, join, sort, group-by, aggregate) with natural language specifications and accuracy guarantees.
+- **Datasets Used**: FEVER (fact-checking), BioDEX (biomedical), TREC DL (search), ArXiv papers (topic analysis).
+- **Results**: LOTUS programs match or exceed SOTA AI pipelines while being more concise and efficient.
+- **Code Available**: https://github.com/lotus-data/lotus
+- **Relevance**: Provides system infrastructure for semantic ordering experiments.
+
+### Paper 4: Found in the Middle: Permutation Self-Consistency Improves Listwise Ranking
+- **Authors**: Raphael Tang et al.
+- **Year**: 2023
+- **Source**: arXiv:2310.07712
+- **Key Contribution**: Addresses positional bias in LLM listwise ranking by shuffling input order and aggregating results.
+- **Methodology**: Repeatedly shuffles list order in prompts and aggregates rankings to marginalize positional bias.
+- **Results**: Improves scores by up to 34-52% for Mistral, 7-18% for GPT-3.5. Also includes **sorting experiments** (not just passage ranking).
+- **Code Available**: https://github.com/castorini/perm-sc
+- **Relevance**: Positional bias is a confound we must account for in our ordering experiments.
+
+### Paper 5: Measuring the Inconsistency of LLMs in Preferential Ranking
+- **Authors**: Various
+- **Year**: 2024
+- **Source**: arXiv:2410.08851
+- **Key Contribution**: Studies how consistently LLMs rank items, identifying order and transitive inconsistencies.
+- **Relevance**: Important for understanding whether ordering failures are due to lack of knowledge or inconsistent reasoning.
+
+### Paper 6: LLM-RankFusion: Mitigating Intrinsic Inconsistency in LLM-based Ranking
+- **Authors**: Yifan Zeng et al.
+- **Year**: 2024
+- **Source**: arXiv:2406.00231
+- **Key Contribution**: Identifies order inconsistency and transitive inconsistency in LLM pairwise comparisons and proposes mitigation strategies.
+- **Relevance**: These inconsistencies affect one-pass ordering—if the LLM can&#39;t make transitive comparisons, sorting will fail.
+
+### Paper 7: Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them
+- **Authors**: Suzgun et al.
+- **Year**: 2022
+- **Source**: arXiv:2210.09261
+- **Key Contribution**: Identifies 23 BIG-Bench tasks where LLMs lag behind humans, including tasks related to logical reasoning and knowledge.
+- **Relevance**: BIG-Bench includes word_sorting and logical_sequence tasks relevant to ordering ability.
+
+### Paper 8: Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agent
+- **Authors**: Weiwei Sun et al.
+- **Year**: 2023
+- **Source**: arXiv:2304.09542
+- **Key Contribution**: Introduces RankGPT approach for using LLMs as passage re-rankers, showing competitive performance with supervised methods.
+- **Relevance**: Establishes that LLMs can do listwise ranking effectively, forming a baseline approach for our ordering experiments.
+
+## Common Methodologies
+
+1. **Pointwise scoring**: Ask the LLM to assign a numeric score to each item, then sort by score. Works well for factual recall tasks (Access Paths paper).
+2. **Pairwise comparison**: Ask the LLM to compare pairs, use sorting algorithm. More robust for semantic tasks but expensive.
+3. **Listwise ranking**: Present the entire list and ask for a permutation. One-pass approach most relevant to our research.
+4. **Permutation self-consistency**: Shuffle inputs multiple times and aggregate rankings to reduce positional bias.
+
+## Standard Baselines
+
+- **Pointwise sorting** (value-based): Used by BigQuery ML, many analytic systems
+- **Quicksort with LLM comparator**: Used by LOTUS
+- **RankGPT sliding window**: Listwise approach from Sun et al.
+- **Random baseline**: Expected Kendall&#39;s tau ≈ 0
+
+## Evaluation Metrics
+
+- **Kendall&#39;s tau**: Rank correlation coefficient, -1 to 1 (used for full ranking)
+- **nDCG@k**: Normalized discounted cumulative gain (used for top-k ranking)
+- **Spearman&#39;s rho**: Alternative rank correlation
+- **Exact match**: Whether ordering is perfectly correct
+- **Unordered pairs (UP)**: Fraction of pairs in wrong order (SortBench)
+- **Faithfulness**: Whether output items match input items (SortBench)
+
+## Gaps and Opportunities
+
+1. **No systematic study of property-dependent ordering**: SortBench tests syntactic sorting (numbers, strings). Access Paths tests a few factual properties (height, population). **No work systematically tests which factual properties LLMs can sort by and identifies patterns of success/failure.**
+
+2. **Syntax vs. semantics interaction**: SortBench&#39;s NumberWords finding shows that semantic meaning can interfere with syntactic sorting. The reverse—whether syntactic properties (token frequency, string length) affect semantic ordering—is unexplored.
+
+3. **One-pass ordering**: Most LLM sorting work uses multi-step approaches (pairwise, iterative). Testing one-pass listwise ordering reveals what knowledge is directly accessible vs. requiring computation.
+
+4. **Property taxonomy**: No work categorizes orderable properties by how accessible they are to LLMs (e.g., temporal order vs. physical properties vs. geographic facts).
+
+## Recommendations for Our Experiment
+
+### Recommended datasets
+- **Primary**: Our curated ordering_tasks.json with 22 tasks across 5 categories and 3 difficulty levels
+- **Secondary**: NBA heights and World Population datasets from OrderByLLM for comparison with prior work
+- **Validation**: BIG-Bench word_sorting task for syntactic baseline
+
+### Recommended baselines
+- Random ordering (expected Kendall&#39;s tau ≈ 0)
+- Alphabetical ordering (tests if LLM defaults to alphabetical)
+- Pointwise scoring approach (from Access Paths)
+
+### Recommended metrics
+- Kendall&#39;s tau (primary - measures rank correlation)
+- Exact match rate (strictest - binary correct/incorrect)
+- Spearman&#39;s rho (alternative rank correlation)
+
+### Methodological considerations
+- **Positional bias**: Shuffle item order in prompts across multiple runs
+- **Temperature**: Use temperature=0 for reproducibility
+- **Prompt design**: Simple, direct prompts (&#34;Sort the following items by X, from lowest to highest&#34;)
+- **Models to test**: At least 3 frontier models (GPT-4o, Claude, Gemini) + 1 open model
+- **List length**: Start with 10 items per task (manageable for one-pass ordering)
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          PAPER REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+Generate a complete academic paper with the following structure:
+
+1. TITLE
+   - Clear, specific, informative
+   - Should convey main finding or contribution
+
+2. AUTHOR
+   - Use this exact author line in the \author{} block: Ari Holtzman and NeuriCo
+
+3. ABSTRACT (150-250 words)
+   - Problem statement
+   - Approach
+   - Key results
+   - Significance
+
+4. INTRODUCTION
+   - Research problem and motivation
+   - Gap in existing work
+   - Our contribution (be specific)
+   - Paper organization
+
+5. RELATED WORK
+   - Organized by theme/approach
+   - Position our work relative to prior work
+   - Cite papers from literature review
+
+6. METHODOLOGY
+   - Clear description of approach
+   - Experimental setup
+   - Datasets used
+   - Evaluation metrics
+   - Baselines
+
+7. RESULTS
+   - Present results with tables and figures
+   - Statistical analysis
+   - Comparison to baselines
+   - Ablation studies (if applicable)
+
+8. DISCUSSION
+   - Interpretation of results
+   - Limitations
+   - Broader implications
+
+9. CONCLUSION
+   - Summary of contributions
+   - Key findings
+   - Future work
+
+10. REFERENCES
+   - BibTeX format
+   - All cited papers
+
+════════════════════════════════════════════════════════════════════════════════
+                          OUTPUT FORMAT
+════════════════════════════════════════════════════════════════════════════════
+
+Create a MODULAR LaTeX project with the following directory structure:
+
+paper_draft/
+├── main.tex              # Main file that imports all sections
+├── references.bib        # BibTeX references
+├── sections/
+│   ├── abstract.tex      # Abstract content
+│   ├── introduction.tex  # Introduction section
+│   ├── related_work.tex  # Related work section
+│   ├── methodology.tex   # Methodology section
+│   ├── results.tex       # Results section
+│   ├── discussion.tex    # Discussion section
+│   └── conclusion.tex    # Conclusion section
+├── figures/              # Directory for any generated figures
+├── tables/               # Directory for complex standalone tables
+└── appendix/             # Directory for appendix sections (if needed)
+
+INSTRUCTIONS:
+1. First, create the directory structure above (mkdir -p paper_draft/sections paper_draft/figures paper_draft/tables paper_draft/appendix)
+2. Write main.tex using the EXACT preamble for NEURIPS:
+
+   \documentclass{article}
+   \usepackage[final]{neurips_2025}  % NEURIPS style (neurips_2025.sty is in paper_draft/)
+   \usepackage[hidelinks]{hyperref}  % REQUIRED: clickable links
+   \usepackage{booktabs}  % REQUIRED: professional tables
+   \usepackage{graphicx}
+   \usepackage{amsmath,amssymb}
+
+   % Import command files
+   \input{commands/math}
+   \input{commands/general}
+   \input{commands/macros}
+
+   % Use this bibliography style:
+   \bibliographystyle{plainnat}
+
+   \author{Ari Holtzman and NeuriCo}
+
+   - Use \input{sections/...} to include each section
+   - Use \bibliography{references} for references
+3. Write each section file with COMPLETE content (no placeholders)
+4. Each section file should include its \section{} command
+5. Write references.bib with all citations in BibTeX format
+6. After writing all files, compile the paper:
+   cd paper_draft && pdflatex -interaction=nonstopmode main.tex && bibtex main && pdflatex -interaction=nonstopmode main.tex && pdflatex -interaction=nonstopmode main.tex
+
+This modular structure allows humans to easily:
+- Edit individual sections without navigating a large file
+- Track changes per section
+- Reuse sections across different paper versions
+
+════════════════════════════════════════════════════════════════════════════════
+                          QUALITY REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+- Academic tone throughout
+- All claims must be supported by data from the experiment report
+- Proper citations using \cite{} commands
+- Clear figures and tables with proper captions
+- NO placeholder text - every section must have real content
+- The paper MUST compile without errors
+- If compilation fails, debug and fix the LaTeX errors
+
+════════════════════════════════════════════════════════════════════════════════
+                          LAB WRITING STYLE
+════════════════════════════════════════════════════════════════════════════════
+
+Follow these lab-specific conventions to match our paper style:
+
+1. LANGUAGE STYLE:
+   - Use active voice: "We propose", "We examine", "We focus on"
+   - Be direct and confident: "Our main question is...", "We hypothesize that..."
+   - State things clearly and simply - prefer plain language over jargon
+   - Use bold questions as paragraph organizers: {\bf what is X?}
+   - Include specific quantitative claims: "8.97% over baseline"
+   - Avoid fancy wording: "utilize" → "use", "facilitate" → "help"
+
+2. INTRODUCTION STRUCTURE:
+   - Engaging hook (get to the point quickly)
+   - Problem importance
+   - Gap identification
+   - Your approach with method figure reference
+   - Quantitative preview of results
+   - Contribution bullets (3-4 items, action verbs)
+
+3. CONTRIBUTION LISTS:
+   \begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+       \item We propose...
+       \item We conduct...
+       \item We complement...
+   \end{itemize}
+
+4. MODULAR COMMANDS STRUCTURE:
+   Command templates are pre-copied to paper_draft/commands/:
+   - math.tex: Math notation macros
+   - general.tex: Formatting macros
+   - macros.tex: Project-specific term definitions (customize this for your paper)
+
+   In main.tex, include:
+   \input{commands/math}
+   \input{commands/general}
+   \input{commands/macros}
+
+5. REFERENCE CONVENTIONS:
+   Use reference macros from math.tex:
+   - \figref{fig:name} for "figure 1" (lowercase, in-sentence)
+   - \Figref{fig:name} for "Figure 1" (capitalized, start of sentence)
+   - \secref{sec:name} for "section 2"
+
+6. TEXT FORMATTING:
+   - Use \para{Header text} for bold paragraph headers
+   - Define method/dataset names with \textsc and \xspace:
+     \newcommand{\methodname}{\textsc{MethodName}\xspace}
+
+7. TABLE FORMATTING:
+   - Use booktabs package (no vertical lines)
+   - Use \resizebox{\textwidth}{!}{...} for wide tables
+   - Use @{} to remove padding at table edges
+   - Use \cmidrule(lr){x-y} for sub-headers
+   - Use \textsc{} for dataset/method names in headers
+   - Bold best results with {\bf ...}
+
+8. FIGURE FORMATTING:
+   - Use 0.32\textwidth for 3-column subfigures
+   - Use 0.95\linewidth for full-width figures
+   - Use \input{figures/legend} for shared legends
+   - Write self-contained captions explaining key observations
+
+9. RESULTS PRESENTATION:
+   - Define \increase and \decrease for colored arrows (green up, red down)
+   - Bold best results in tables
+   - Report confidence intervals when available
+
+10. ALGORITHM STYLING:
+    - Use algpseudocode with [noend]
+    - Use \triangleright for comments
+
+11. HYPERLINKS (REQUIRED):
+    - Always use \usepackage[hidelinks]{hyperref} or with colored links
+    - All citations, section refs, figure refs, table refs must be clickable
+    - This is essential for reader navigation
+
+════════════════════════════════════════════════════════════════════════════════
+                          WORKFLOW: REVIEW AND REFLECT
+════════════════════════════════════════════════════════════════════════════════
+
+Before calling finish, you MUST complete these review steps:
+
+1. REVIEW RESOURCES (at the start):
+   - Read .claude/skills/paper-writer/SKILL.md for detailed guidance
+   - Study templates/paper_writing/lab_style_guide.md for style conventions
+   - Browse paper_examples/ for formatting and language patterns
+
+2. SELF-REFLECTION (before finishing):
+   After writing all sections, review your work against these criteria:
+
+   LANGUAGE CHECK:
+   - [ ] Is the writing clear and jargon-free?
+   - [ ] Are claims specific with quantitative support?
+   - [ ] Is active voice used throughout?
+
+   FORMATTING CHECK:
+   - [ ] Does main.tex include \input{commands/math}, \input{commands/general}, \input{commands/macros}?
+   - [ ] Is hyperref package included for clickable references?
+   - [ ] Do tables use booktabs (no vertical lines)?
+   - [ ] Are best results bolded in tables?
+   - [ ] Are figures/tables properly captioned?
+
+   STRUCTURE CHECK:
+   - [ ] Does introduction follow: hook → importance → gap → approach → preview → contributions?
+   - [ ] Are contribution bullets specific with action verbs?
+   - [ ] Does the paper compile without errors?
+
+3. FIX ISSUES:
+   - Address any issues found in the self-reflection
+   - Re-compile and verify the PDF looks correct
+
+Only after completing this review should you consider the paper finished.
